@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Train CTRL model",
+      "type": "shell",
+      "command": ".venv\\Scripts\\python.exe",
+      "args": ["-m", "app.train"],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Run CTRL bot",
+      "type": "shell",
+      "command": ".venv\\Scripts\\python.exe",
+      "args": ["-m", "app.bot"],
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}

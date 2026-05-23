@@ -6,3 +6,4 @@ artifacts/
 .cache/
 .ipynb_checkpoints/
 .CODE_OVERVIEW.md
+.run_bot.bat

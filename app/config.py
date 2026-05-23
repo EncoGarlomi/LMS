@@ -40,12 +40,12 @@ def _parse_optional_int(value: str | None) -> int | None:
 
 
 def load_settings() -> Settings:
-    model_path = Path(os.getenv("MODEL_PATH", "artifacts/ctrl-news"))
+    model_path = Path(os.getenv("MODEL_PATH", "artifacts/ctrl-news/checkpoint-15"))
     return Settings(
         bot_token=os.getenv("BOT_TOKEN", "").strip(),
         admin_id=_parse_optional_int(os.getenv("ADMIN_ID")),
         model_name=os.getenv("MODEL_NAME", "salesforce/ctrl").strip(),
-        dataset_name=os.getenv("DATASET_NAME", "Yehor/news-headlines-ubercorpus").strip(),
+        dataset_name=os.getenv("DATASET_NAME", "shaurya03/tech-news-daily").strip(),
         text_column=os.getenv("TEXT_COLUMN", "").strip() or None,
         response_language=os.getenv("RESPONSE_LANGUAGE", "Ukrainian").strip(),
         train_estimated_minutes=int(os.getenv("TRAIN_ESTIMATED_MINUTES", "60")),

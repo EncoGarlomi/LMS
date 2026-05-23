@@ -42,6 +42,39 @@ HELP_TEXT = (
 logger = logging.getLogger(__name__)
 
 
+def _find_latest_checkpoint_dir(base: Path) -> Path | None:
+    """Return the latest numeric checkpoint directory under `base`, or None."""
+    if not base.exists() or not base.is_dir():
+        return None
+    candidates = [p for p in base.iterdir() if p.is_dir() and p.name.startswith("checkpoint-")]
+    if candidates:
+        def _key(p: Path) -> int:
+            try:
+                return int(p.name.split("checkpoint-")[-1])
+            except Exception:
+                return 0
+
+        return max(candidates, key=_key)
+
+    for fname in ("model.safetensors", "pytorch_model.bin"):
+        if (base / fname).exists():
+            return base
+    return None
+
+
+def _select_model_source(settings) -> str | Path:
+    """Resolve model source: prefer latest checkpoint dir or file under settings.model_path, fallback to model_name."""
+    model_path = Path(settings.model_path)
+    if model_path.exists():
+        if model_path.is_file():
+            return model_path
+        latest = _find_latest_checkpoint_dir(model_path)
+        if latest is not None:
+            return latest
+        return model_path
+    return settings.model_name
+
+
 def _is_admin(update: Update, admin_id: int | None) -> bool:
     user = update.effective_user
     return admin_id is not None and user is not None and user.id == admin_id
@@ -56,7 +89,8 @@ def _get_generator(application: Application) -> CtrlNewsGenerator:
 
 def _reload_generator(application: Application) -> None:
     settings = application.bot_data["settings"]
-    application.bot_data["generator"] = CtrlNewsGenerator(settings.model_path)
+    model_source = _select_model_source(settings)
+    application.bot_data["generator"] = CtrlNewsGenerator(model_source)
 
 
 def _language_keyboard() -> InlineKeyboardMarkup:
@@ -383,7 +417,7 @@ def build_application() -> Application:
     if not settings.bot_token:
         raise RuntimeError("BOT_TOKEN is missing in .env")
 
-    model_source: str | Path = settings.model_path if settings.model_path.exists() else settings.model_name
+    model_source: str | Path = _select_model_source(settings)
     generator = CtrlNewsGenerator(model_source)
 
     application = Application.builder().token(settings.bot_token).build()

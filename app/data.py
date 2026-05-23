@@ -12,6 +12,7 @@ TEXT_COLUMN_CANDIDATES = (
     "article",
     "news",
     "body",
+    "summary",
 )
 
 
